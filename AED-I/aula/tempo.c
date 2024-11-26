@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h> //clock(), CLOCKS_PER_SEC e clock_t
 
-#define TAM 10000 //constante para tamanho do vetor
+#define TAM 518000 //constante para tamanho do vetor
 
 int RandomInteger(int low, int high){
     int k;
