@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h> //clock(), CLOCKS_PER_SEC e clock_t
 
-int const TAM = 50000; //constante para tamanho do vetor
+int const TAM = 400000; //constante para tamanho do vetor
 
 void Intercala (int p, int q, int r, int v[TAM]) {
     int i, j, k, *w;
