@@ -1,93 +1,72 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
-#define MAX 200000
-
-typedef struct {
-    int first, second;
-} ii;
+#define ll long long int
 
 typedef struct {
-    ii *edges;
-    int size, capacity;
-} vii;
+    ll u, v, w;
+} Edge;
 
-vii g[MAX + 1];
-int visitado[MAX + 1];
-int n, m;
+ll *id, *sz;
 
-void init_vii(vii *v) {
-    v->size = 0;
-    v->capacity = 10;
-    v->edges = (ii *)malloc(v->capacity * sizeof(ii));
+ll find(ll x) {
+    if (id[x] == x) return x;
+    return id[x] = find(id[x]);
 }
 
-void push_back(vii *v, int first, int second) {
-    if (v->size == v->capacity) {
-        v->capacity *= 2;
-        v->edges = (ii *)realloc(v->edges, v->capacity * sizeof(ii));
+void unionn(ll x, ll y) {
+    x = find(x);
+    y = find(y);
+    if (sz[x] > sz[y]) {
+        ll temp = x;
+        x = y;
+        y = temp;
     }
-    v->edges[v->size].first = first;
-    v->edges[v->size].second = second;
-    v->size++;
+    id[x] = y;
+    sz[y] += sz[x];
 }
 
-void clear_vii(vii *v) {
-    v->size = 0;
-}
-
-int compare(const void *a, const void *b) {
-    return ((ii *)a)->first - ((ii *)b)->first;
-}
-
-long long prim(int s) {
-    long long cost = 0;
-    for (int i = 0; i <= n; i++) visitado[i] = 0;
-
-    int heap[MAX], h_size = 0;
-    ii dist[MAX];
-    for (int i = 0; i < MAX; i++) dist[i].first = INT_MAX, dist[i].second = -1;
-
-    for (int i = 0; i < g[s].size; i++) {
-        dist[g[s].edges[i].first] = g[s].edges[i];
-        heap[h_size++] = g[s].edges[i].first;
-    }
-    visitado[s] = 1;
-    
-    while (h_size) {
-        qsort(heap, h_size, sizeof(int), compare);
-        int u = heap[0];
-        heap[0] = heap[--h_size];
-        
-        if (!visitado[dist[u].second]) {
-            cost += dist[u].first;
-            visitado[dist[u].second] = 1;
-            for (int i = 0; i < g[dist[u].second].size; i++) {
-                if (!visitado[g[dist[u].second].edges[i].first]) {
-                    heap[h_size++] = g[dist[u].second].edges[i].first;
-                    dist[g[dist[u].second].edges[i].first] = g[dist[u].second].edges[i];
-                }
-            }
-        }
-    }
-    return cost;
+int cmp(const void *a, const void *b) {
+    return ((Edge*)a)->w - ((Edge*)b)->w;
 }
 
 int main() {
-    while (scanf("%d %d", &m, &n) && (m != 0 || n != 0)) {
-        for (int i = 0; i <= m; i++) {
-            clear_vii(&g[i]);
+    ll m, n;
+    while (1) {
+        scanf("%lld %lld", &m, &n);
+        if (m == 0 && n == 0) {
+            break;
         }
-        long long total = 0;
-        for (int i = 0; i < n; i++) {
-            int x, y, z;
-            scanf("%d %d %d", &x, &y, &z);
-            push_back(&g[x], y, z);
-            push_back(&g[y], x, z);
-            total += z;
+        
+        id = (ll*)malloc((m+1) * sizeof(ll));
+        sz = (ll*)malloc((m+1) * sizeof(ll));
+        for (ll i = 0; i <= m; i++) {
+            id[i] = i;
+            sz[i] = 1;
         }
-        printf("%lld\n", total - prim(0));
+        
+        Edge *grafo = (Edge*)malloc(n * sizeof(Edge));
+        ll soma = 0;
+        for (ll i = 0; i < n; i++) {
+            scanf("%lld %lld %lld", &grafo[i].u, &grafo[i].v, &grafo[i].w);
+            soma += grafo[i].w;
+        }
+        
+        qsort(grafo, n, sizeof(Edge), cmp);
+        
+        ll c = 0;
+        for (ll i = 0; i < n; i++) {
+            if (find(grafo[i].u) != find(grafo[i].v)) {
+                unionn(grafo[i].u, grafo[i].v);
+                c += grafo[i].w;
+            }
+        }
+        
+        printf("%lld\n", soma - c);
+        
+        free(id);
+        free(sz);
+        free(grafo);
     }
     return 0;
 }
